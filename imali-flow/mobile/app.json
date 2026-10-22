@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "Imali Flow",
+    "slug": "imali-flow",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "android": { "package": "za.co.imaliflow" },
+    "web": { "bundler": "metro" }
+  }
+}

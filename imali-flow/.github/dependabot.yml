@@ -1,0 +1,5 @@
+version: 2
+updates:
+  - { package-ecosystem: maven, directory: /backend, schedule: { interval: weekly } }
+  - { package-ecosystem: pip, directory: /ai-service, schedule: { interval: weekly } }
+  - { package-ecosystem: npm, directory: /mobile, schedule: { interval: weekly } }

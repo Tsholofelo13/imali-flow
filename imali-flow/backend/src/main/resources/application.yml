@@ -1,0 +1,32 @@
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-stacktrace: never
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/imali}
+    username: ${DB_USER:imali}
+    password: ${DB_PASSWORD:imali}
+  jpa:
+    hibernate:
+      ddl-auto: update   # hackathon shortcut; move to Flyway migrations before any real launch
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    ttl-minutes: ${JWT_TTL_MINUTES:30}
+  ai:
+    url: ${AI_URL:http://localhost:8000}
+    internal-key: ${AI_INTERNAL_KEY}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:8081,http://localhost:19006}
