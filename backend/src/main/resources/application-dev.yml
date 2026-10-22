@@ -1,0 +1,8 @@
+# Local development only. Never deploy with this profile.
+imali:
+  jwt:
+    secret: dev-only-secret-change-me-0123456789abcdef
+  demo:
+    enabled: true
+    email: demo@imali.app
+    password: Demo#Imali2026
