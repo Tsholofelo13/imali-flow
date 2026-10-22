@@ -5,7 +5,7 @@ Spring Boot 3 (Java 21) REST API for Imali Flow: adaptive income splitting, runw
 ## Run it locally
 
 ```bash
-docker compose up -d db                                # run from the repo root: PostgreSQL on :5432
+docker compose -f backend/docker-compose.dev.yml up -d   # run from the repo root: PostgreSQL on :5432
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev   # or: mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
@@ -43,6 +43,8 @@ curl -s localhost:8080/api/offers/analyse -H "Authorization: Bearer $TOKEN" -H '
 | POST | `/api/income` | Log a payment, returns the split (spend now / bills / savings) |
 | GET | `/api/income` | The 100 most recent payments |
 | GET | `/api/forecast` | Days covered, next expected income, shortfall warning, confidence |
+| POST | `/api/analysis/text` | Snap and Explain through the AI service: pasted text in, red flags and explanation out |
+| POST | `/api/analysis/image` | Same, from a photo (JPEG, PNG, WebP, up to 5MB). Not stored |
 | POST | `/api/offers/analyse` | Snap and Explain: risk, red flags, real cost in rands, plain-language explanation |
 
 Everything except `/api/auth/**` and `/actuator/health` needs `Authorization: Bearer <token>`.
@@ -63,4 +65,6 @@ or the explainer to answer in isiZulu or Sesotho.
 
 ## Not built yet
 
-Photo upload and OCR, translation, and the front end. `/api/offers/analyse` takes text (plus optional loan numbers) today.
+Translation, and the language-model explainer inside `/api/offers/analyse` (the AI service handles `/api/analysis/*`). `/api/offers/analyse` is rule-based and takes text plus optional loan numbers.
+
+The backend calls the AI service at `AI_URL` with `AI_INTERNAL_KEY`. If the AI service is down, `/api/analysis/*` returns 503.

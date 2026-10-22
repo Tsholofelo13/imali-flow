@@ -27,9 +27,12 @@ management:
 
 imali:
   jwt:
-    secret: ${IMALI_JWT_SECRET:}     # required, at least 32 bytes. The app refuses to start without it.
-    ttl-minutes: 120
+    secret: ${IMALI_JWT_SECRET:${JWT_SECRET:}}     # required, at least 32 bytes. The app refuses to start without it.
+    ttl-minutes: ${JWT_TTL_MINUTES:120}
   cors:
-    allowed-origins: ${IMALI_CORS_ORIGINS:http://localhost:8081}
+    allowed-origins: ${IMALI_CORS_ORIGINS:${CORS_ORIGINS:http://localhost:8081,http://localhost:19006}}
+  ai:
+    url: ${AI_URL:http://localhost:8000}        # internal Python AI service (OCR + language model). Never exposed to the phone.
+    internal-key: ${AI_INTERNAL_KEY:}
   demo:
     enabled: false

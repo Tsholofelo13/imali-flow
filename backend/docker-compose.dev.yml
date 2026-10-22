@@ -1,0 +1,17 @@
+# Database only, with the port open so you can run the backend from IntelliJ or Maven.
+# From the repo root:  docker compose -f backend/docker-compose.dev.yml up -d
+# (The root docker-compose.yml runs the whole stack and keeps the database private.)
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: imali
+      POSTGRES_USER: imali
+      POSTGRES_PASSWORD: imali
+    ports:
+      - "5432:5432"
+    volumes:
+      - imali-dev-db:/var/lib/postgresql/data
+
+volumes:
+  imali-dev-db:
