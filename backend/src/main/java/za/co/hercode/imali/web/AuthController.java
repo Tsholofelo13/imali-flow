@@ -20,6 +20,7 @@ import za.co.hercode.imali.model.UserAccount;
 import za.co.hercode.imali.repo.UserRepository;
 import za.co.hercode.imali.security.JwtService;
 import za.co.hercode.imali.security.LoginRateLimiter;
+import za.co.hercode.imali.service.AuditService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -43,12 +44,15 @@ public class AuthController {
     private final PasswordEncoder encoder;
     private final JwtService jwt;
     private final LoginRateLimiter limiter;
+    private final AuditService audit;
 
-    public AuthController(UserRepository users, PasswordEncoder encoder, JwtService jwt, LoginRateLimiter limiter) {
+    public AuthController(UserRepository users, PasswordEncoder encoder, JwtService jwt, LoginRateLimiter limiter,
+                          AuditService audit) {
         this.users = users;
         this.encoder = encoder;
         this.jwt = jwt;
         this.limiter = limiter;
+        this.audit = audit;
     }
 
     @PostMapping("/register")
@@ -66,6 +70,7 @@ public class AuthController {
             user.setLanguage(request.language());
         }
         users.save(user);
+        audit.record(user.getId(), "REGISTER");
         return new TokenResponse(jwt.issue(user.getId()));
     }
 
@@ -79,9 +84,11 @@ public class AuthController {
         // Same answer for "no such user" and "wrong password" so the API does not reveal which emails exist.
         if (user == null || !encoder.matches(request.password(), user.getPasswordHash())) {
             limiter.recordFailure(email);
+            audit.record(user == null ? null : user.getId(), "LOGIN_FAILED");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong email or password");
         }
         limiter.reset(email);
+        audit.record(user.getId(), "LOGIN");
         return new TokenResponse(jwt.issue(user.getId()));
     }
 }
