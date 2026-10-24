@@ -31,7 +31,7 @@ public class ProfileController {
     /** Partial update: only the fields that are sent are changed. */
     public record ProfileUpdate(
             @Size(max = 80) String displayName,
-            @Pattern(regexp = "en|zu|st", message = "language must be en, zu or st") String language,
+            @Pattern(regexp = Languages.REGEX, message = Languages.MESSAGE) String language,
             @DecimalMin("0.00") @Digits(integer = 10, fraction = 2) BigDecimal monthlyObligations,
             @DecimalMin("1.00") @Digits(integer = 10, fraction = 2) BigDecimal dailySpend,
             @DecimalMin("0.00") @Digits(integer = 10, fraction = 2) BigDecimal currentBalance) {

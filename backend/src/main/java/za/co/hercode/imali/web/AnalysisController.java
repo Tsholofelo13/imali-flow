@@ -1,6 +1,7 @@
 package za.co.hercode.imali.web;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +29,6 @@ import za.co.hercode.imali.ai.AiClient;
 public class AnalysisController {
 
     private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
-    private static final Set<String> LANGUAGES = Set.of("en", "zu", "st");
 
     public record TextRequest(@NotBlank @Size(max = 8000) String text, String language) {
     }
@@ -42,7 +42,7 @@ public class AnalysisController {
     @PostMapping("/text")
     public Map<String, Object> text(@Valid @RequestBody TextRequest request) {
         try {
-            return ai.analyzeText(request.text(), lang(request.language()));
+            return labelled(ai.analyzeText(request.text(), Languages.orEnglish(request.language())));
         } catch (RestClientException e) {
             throw unavailable();
         }
@@ -57,7 +57,7 @@ public class AnalysisController {
         }
         try {
             // Forwarded for processing and NOT stored (matches the SSDLC promise).
-            return ai.analyzeImage(file.getBytes(), "upload", lang(language));
+            return labelled(ai.analyzeImage(file.getBytes(), "upload", Languages.orEnglish(language)));
         } catch (RestClientException e) {
             throw unavailable();
         }
@@ -68,7 +68,11 @@ public class AnalysisController {
                 "The checker is not available right now. Please try again in a moment.");
     }
 
-    private static String lang(String language) {
-        return language != null && LANGUAGES.contains(language) ? language : "en";
+    /** Every answer from the AI is marked, so the app can show an "AI-assisted" label next to it. */
+    private static Map<String, Object> labelled(Map<String, Object> result) {
+        Map<String, Object> out = new LinkedHashMap<>(result);
+        out.put("ai_assisted", true);
+        out.put("disclaimer", "AI-assisted guidance, not financial advice.");
+        return out;
     }
 }

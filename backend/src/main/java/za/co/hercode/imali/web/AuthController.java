@@ -31,7 +31,7 @@ public class AuthController {
             // BCrypt only uses the first 72 bytes, so longer passwords are rejected rather than silently truncated.
             @NotBlank @Size(min = 8, max = 72) String password,
             @Size(max = 80) String displayName,
-            @Pattern(regexp = "en|zu|st", message = "language must be en, zu or st") String language) {
+            @Pattern(regexp = Languages.REGEX, message = Languages.MESSAGE) String language) {
     }
 
     public record LoginRequest(@NotBlank String email, @NotBlank String password) {
