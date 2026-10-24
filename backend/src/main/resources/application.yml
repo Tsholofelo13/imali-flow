@@ -1,32 +1,41 @@
-server:
-  port: 8080
-  error:
-    include-message: never
-    include-stacktrace: never
 spring:
+  application:
+    name: imali-backend
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/imali}
     username: ${DB_USER:imali}
-    password: ${DB_PASSWORD:imali}
+    password: ${DB_PASSWORD:}        # no default. Set DB_PASSWORD in every environment (the dev profile sets a local one).
   jpa:
-    hibernate:
-      ddl-auto: update   # hackathon shortcut; move to Flyway migrations before any real launch
     open-in-view: false
+    hibernate:
+      ddl-auto: validate             # the schema is owned by Flyway migrations, never by Hibernate
   servlet:
     multipart:
-      max-file-size: 5MB
+      max-file-size: 5MB             # for the photo upload step of Snap and Explain
       max-request-size: 6MB
+
+server:
+  port: ${PORT:8080}                 # hosts such as Render tell the app which port to use
+  error:
+    include-message: always          # our messages are written for users
+    include-stacktrace: never
+
 management:
   endpoints:
     web:
       exposure:
-        include: health
-app:
+        include: health              # nothing else is exposed
+
+imali:
   jwt:
-    secret: ${JWT_SECRET}
-    ttl-minutes: ${JWT_TTL_MINUTES:30}
+    secret: ${IMALI_JWT_SECRET:${JWT_SECRET:}}   # required, at least 32 bytes. The app refuses to start without it.
+    ttl-minutes: ${JWT_TTL_MINUTES:120}
+  cors:
+    allowed-origins: ${IMALI_CORS_ORIGINS:${CORS_ORIGINS:http://localhost:8081,http://localhost:19006}}
   ai:
     url: ${AI_URL:http://localhost:8000}
-    internal-key: ${AI_INTERNAL_KEY}
-  cors:
-    allowed-origins: ${CORS_ORIGINS:http://localhost:8081,http://localhost:19006}
+    internal-key: ${AI_INTERNAL_KEY:}
+  demo:
+    enabled: ${IMALI_DEMO_ENABLED:false}         # judges' demo account. Turned on only by an environment setting.
+    email: ${IMALI_DEMO_EMAIL:demo@imali.app}
+    password: ${IMALI_DEMO_PASSWORD:}            # set this in the host's settings, never in code

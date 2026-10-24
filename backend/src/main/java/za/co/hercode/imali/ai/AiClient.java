@@ -1,4 +1,6 @@
-package za.co.imaliflow.analysis;
+package za.co.hercode.imali.ai;
+
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -8,17 +10,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
-import java.util.Map;
 
 /** All calls to the Python AI service go through here. API keys never leave the server. */
 @Component
 public class AiClient {
+
     private final RestClient http;
 
-    public AiClient(@Value("${app.ai.url}") String url, @Value("${app.ai.internal-key}") String key) {
+    public AiClient(@Value("${imali.ai.url}") String url, @Value("${imali.ai.internal-key}") String key) {
         var factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5_000);
-        factory.setReadTimeout(45_000);
+        // A free-tier AI service can take about a minute to wake from sleep, so wait longer than that.
+        factory.setReadTimeout(90_000);
         this.http = RestClient.builder().baseUrl(url).requestFactory(factory)
                 .defaultHeader("X-Internal-Key", key).build();
     }
@@ -33,16 +36,13 @@ public class AiClient {
     public Map<String, Object> analyzeImage(byte[] bytes, String filename, String language) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new ByteArrayResource(bytes) {
-            @Override public String getFilename() { return filename; }
+            @Override
+            public String getFilename() {
+                return filename;
+            }
         });
         body.add("language", language);
         return http.post().uri("/analyze/image").contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body).retrieve().body(Map.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> forecast(Map<String, Object> payload) {
-        return http.post().uri("/forecast/runway").contentType(MediaType.APPLICATION_JSON)
-                .body(payload).retrieve().body(Map.class);
     }
 }
