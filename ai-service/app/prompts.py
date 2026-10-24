@@ -20,6 +20,9 @@ Respond with ONLY a JSON object, no markdown, in this exact shape:
   "advice": ["short actionable steps"]
 }
 Amounts are in South African rand (ZAR). If you cannot compute a figure, use null and explain in assumptions.
-Write summary, red_flags and advice in the requested language. This is guidance, not financial advice."""
+Write summary, red_flags and advice in the requested language, in short, simple sentences with everyday words. This is guidance, not financial advice."""
 
-LANGUAGE_NAMES = {"en": "English", "zu": "isiZulu", "st": "Sesotho"}
+LANGUAGE_NAMES = {
+    "en": "English", "zu": "isiZulu", "xh": "isiXhosa", "af": "Afrikaans", "st": "Sesotho", "tn": "Setswana",
+    "nso": "Sepedi", "ts": "Xitsonga", "ss": "siSwati", "ve": "Tshivenda", "nr": "isiNdebele",
+}
