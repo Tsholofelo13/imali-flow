@@ -2,9 +2,12 @@
   "expo": {
     "name": "Imali Flow",
     "slug": "imali-flow",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "orientation": "portrait",
-    "android": { "package": "za.co.imaliflow" },
-    "web": { "bundler": "metro" }
+    "userInterfaceStyle": "light",
+    "android": { "package": "za.co.imaliflow", "permissions": ["CAMERA"] },
+    "plugins": [
+      ["expo-image-picker", { "cameraPermission": "Imali Flow uses the camera to read loan offers and messages. Photos are not kept." }]
+    ]
   }
 }
