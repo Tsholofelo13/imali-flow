@@ -34,7 +34,9 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/api/auth/**", "/actuator/health").permitAll()
+                        // "/error" must be open: when a controller answers with an error status (409, 403, 503...), Spring forwards to
+                        // "/error" to write the reply. Without this, every such reply was turned into an empty 401.
+                        .requestMatchers("/api/auth/**", "/actuator/health", "/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(new JwtAuthFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
