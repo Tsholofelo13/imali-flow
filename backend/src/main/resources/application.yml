@@ -4,7 +4,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/imali}
     username: ${DB_USER:imali}
-    password: ${DB_PASSWORD:imali}   # local default only. Always set DB_PASSWORD in any shared or deployed environment.
+    password: ${DB_PASSWORD:}        # no default. Set DB_PASSWORD in every environment (the dev profile sets a local one).
   jpa:
     open-in-view: false
     hibernate:
@@ -15,6 +15,7 @@ spring:
       max-request-size: 6MB
 
 server:
+  port: ${PORT:8080}                 # hosts such as Render tell the app which port to use
   error:
     include-message: always          # our messages are written for users
     include-stacktrace: never
@@ -27,12 +28,14 @@ management:
 
 imali:
   jwt:
-    secret: ${IMALI_JWT_SECRET:${JWT_SECRET:}}     # required, at least 32 bytes. The app refuses to start without it.
+    secret: ${IMALI_JWT_SECRET:${JWT_SECRET:}}   # required, at least 32 bytes. The app refuses to start without it.
     ttl-minutes: ${JWT_TTL_MINUTES:120}
   cors:
     allowed-origins: ${IMALI_CORS_ORIGINS:${CORS_ORIGINS:http://localhost:8081,http://localhost:19006}}
   ai:
-    url: ${AI_URL:http://localhost:8000}        # internal Python AI service (OCR + language model). Never exposed to the phone.
+    url: ${AI_URL:http://localhost:8000}
     internal-key: ${AI_INTERNAL_KEY:}
   demo:
-    enabled: false
+    enabled: ${IMALI_DEMO_ENABLED:false}         # judges' demo account. Turned on only by an environment setting.
+    email: ${IMALI_DEMO_EMAIL:demo@imali.app}
+    password: ${IMALI_DEMO_PASSWORD:}            # set this in the host's settings, never in code

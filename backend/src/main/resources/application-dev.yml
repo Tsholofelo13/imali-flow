@@ -1,8 +1,11 @@
-# Local development only. Never deploy with this profile.
+# Local development only (your laptop and the local Docker database). Never deploy with this profile.
+# These values protect nothing real. The deployed app gets its own secrets from environment settings.
+spring:
+  datasource:
+    password: imali
 imali:
   jwt:
     secret: dev-only-secret-change-me-0123456789abcdef
   demo:
     enabled: true
-    email: demo@imali.app
     password: Demo#Imali2026

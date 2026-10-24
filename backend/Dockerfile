@@ -9,4 +9,5 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","app.jar"]
+# keep memory use low enough for a 512 MB free host
+ENTRYPOINT ["java","-XX:MaxRAMPercentage=65","-XX:+UseSerialGC","-jar","app.jar"]
