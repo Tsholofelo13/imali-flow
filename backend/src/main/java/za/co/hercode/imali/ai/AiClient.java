@@ -20,7 +20,8 @@ public class AiClient {
     public AiClient(@Value("${imali.ai.url}") String url, @Value("${imali.ai.internal-key}") String key) {
         var factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5_000);
-        factory.setReadTimeout(45_000);
+        // A free-tier AI service can take about a minute to wake from sleep, so wait longer than that.
+        factory.setReadTimeout(90_000);
         this.http = RestClient.builder().baseUrl(url).requestFactory(factory)
                 .defaultHeader("X-Internal-Key", key).build();
     }
