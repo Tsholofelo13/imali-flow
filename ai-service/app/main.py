@@ -69,6 +69,9 @@ def health():
 
 @app.post("/analyze/text", dependencies=[Depends(require_internal_key)])
 def analyze_text(body: TextIn):
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        # No AI key configured: the backend falls back to its own rule-based checks.
+        raise HTTPException(status_code=503, detail="ai not configured")
     return analyse(body.text, body.language)
 
 
@@ -85,6 +88,10 @@ async def analyze_image(file: UploadFile = File(...), language: str = Form("en")
     text = pytesseract.image_to_string(img, lang="eng").strip()
     if not text:
         raise HTTPException(status_code=422, detail="no readable text found")
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        # No AI key configured: return only the text read from the photo.
+        # The backend then runs its own rule-based checks on that text.
+        return {"extracted_text": text, "ai_available": False}
     return {"extracted_text": text, **analyse(text, language)}
 
 
