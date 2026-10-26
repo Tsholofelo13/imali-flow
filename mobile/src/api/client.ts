@@ -1,16 +1,25 @@
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import { API_URL, REQUEST_TIMEOUT_MS } from '../config';
 import { beginRequest, endRequest, setOffline } from './status';
 
 const TOKEN_KEY = 'imali_token';
-export const getToken = () => SecureStore.getItemAsync(TOKEN_KEY);
-export const saveToken = (t: string) => SecureStore.setItemAsync(TOKEN_KEY, t);
-export const clearToken = () => SecureStore.deleteItemAsync(TOKEN_KEY);
+
+const Store = Platform.OS === 'web'
+  ? {
+      getItemAsync: async (k: string) => window.localStorage.getItem(k),
+      setItemAsync: async (k: string, v: string) => { window.localStorage.setItem(k, v); },
+      deleteItemAsync: async (k: string) => { window.localStorage.removeItem(k); },
+    }
+  : SecureStore;
+
+export const getToken = () => Store.getItemAsync(TOKEN_KEY);
+export const saveToken = (t: string) => Store.setItemAsync(TOKEN_KEY, t);
+export const clearToken = () => Store.deleteItemAsync(TOKEN_KEY);
 
 let onUnauthorized: (() => void) | null = null;
 export function setUnauthorizedHandler(fn: (() => void) | null) { onUnauthorized = fn; }
 
-// status 0 = network problem or timeout. message may be '' (screens then use their own text).
 export class ApiError extends Error {
   status: number;
   fields?: Record<string, string>;
@@ -28,7 +37,6 @@ type Options = {
   auth?: boolean;
 };
 
-// Never log request or response bodies: they can contain private text and photos.
 export async function request<T>(path: string, opts: Options = {}): Promise<T> {
   const { method = 'GET', body, form, auth = true } = opts;
   const headers: Record<string, string> = {};
@@ -53,7 +61,6 @@ export async function request<T>(path: string, opts: Options = {}): Promise<T> {
     let data: any = null;
     if (text) { try { data = JSON.parse(text); } catch { data = null; } }
     if (!res.ok) {
-      // Read fields first, then message, then error (as the backend handover says).
       const fields = data && data.fields && typeof data.fields === 'object' && !Array.isArray(data.fields)
         ? (data.fields as Record<string, string>) : undefined;
       const fieldMsg = fields ? Object.values(fields).filter(Boolean).join(' ') : '';
