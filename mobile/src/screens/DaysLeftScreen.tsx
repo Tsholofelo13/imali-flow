@@ -8,7 +8,8 @@ import Screen from '../components/Screen';
 import { useSettings, useT } from '../context/SettingsContext';
 import { getForecast } from '../api/services';
 import { errorText } from '../utils/errors';
-import { rand, shortDate } from '../utils/format';
+import RunwayBar from '../components/RunwayBar';
+import { daysUntil, rand, shortDate } from '../utils/format';
 import { colors } from '../theme';
 import type { Key } from '../i18n';
 import type { Forecast } from '../types';
@@ -31,7 +32,7 @@ export default function DaysLeftScreen() {
   const conf = f ? (`conf${String(f.confidence).toUpperCase()}` as Key) : null;
 
   return (
-    <Screen refreshing={loading} onRefresh={() => void load()}>
+    <Screen back refreshing={loading} onRefresh={() => void load()}>
       <AppText variant="title">{t('daysLeftTitle')}</AppText>
       {error ? <Banner color={colors.red} icon="alert-circle" text={error} /> : null}
       {error ? <Button variant="secondary" title={t('retry')} onPress={() => void load()} /> : null}
@@ -43,6 +44,8 @@ export default function DaysLeftScreen() {
             <AppText variant="big" color={color} style={{ fontSize: 72 }}>{f.daysCovered}</AppText>
             <AppText variant="title" color={color}>{t('daysUnit')}</AppText>
           </Card>
+
+          <RunwayBar daysCovered={f.daysCovered} daysToNext={daysUntil(f.expectedNextIncome)} color={color} />
 
           <Banner
             color={color}

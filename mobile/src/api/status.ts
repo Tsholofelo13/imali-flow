@@ -30,3 +30,17 @@ export function subscribeSlow(l: Listener): () => void {
   l(slow);
   return () => { listeners.delete(l); };
 }
+
+// Offline flag: set when a request fails for network reasons, cleared on the next success.
+const offListeners = new Set<(o: boolean) => void>();
+let offline = false;
+
+export function setOffline(v: boolean) {
+  if (v !== offline) { offline = v; offListeners.forEach((l) => l(offline)); }
+}
+
+export function subscribeOffline(l: (o: boolean) => void): () => void {
+  offListeners.add(l);
+  l(offline);
+  return () => { offListeners.delete(l); };
+}

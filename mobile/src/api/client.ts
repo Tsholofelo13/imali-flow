@@ -1,22 +1,11 @@
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
 import { API_URL, REQUEST_TIMEOUT_MS } from '../config';
-import { beginRequest, endRequest } from './status';
+import { beginRequest, endRequest, setOffline } from './status';
 
 const TOKEN_KEY = 'imali_token';
-
-// expo-secure-store has no web implementation, so fall back to localStorage on web.
-const Store = Platform.OS === 'web'
-  ? {
-      getItemAsync: async (k: string) => window.localStorage.getItem(k),
-      setItemAsync: async (k: string, v: string) => { window.localStorage.setItem(k, v); },
-      deleteItemAsync: async (k: string) => { window.localStorage.removeItem(k); },
-    }
-  : SecureStore;
-
-export const getToken = () => Store.getItemAsync(TOKEN_KEY);
-export const saveToken = (t: string) => Store.setItemAsync(TOKEN_KEY, t);
-export const clearToken = () => Store.deleteItemAsync(TOKEN_KEY);
+export const getToken = () => SecureStore.getItemAsync(TOKEN_KEY);
+export const saveToken = (t: string) => SecureStore.setItemAsync(TOKEN_KEY, t);
+export const clearToken = () => SecureStore.deleteItemAsync(TOKEN_KEY);
 
 let onUnauthorized: (() => void) | null = null;
 export function setUnauthorizedHandler(fn: (() => void) | null) { onUnauthorized = fn; }
@@ -58,11 +47,13 @@ export async function request<T>(path: string, opts: Options = {}): Promise<T> {
       body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),
       signal: controller.signal,
     });
+    setOffline(false);
     if (res.status === 204) return undefined as T;
     const text = await res.text();
     let data: any = null;
     if (text) { try { data = JSON.parse(text); } catch { data = null; } }
     if (!res.ok) {
+      // Read fields first, then message, then error (as the backend handover says).
       const fields = data && data.fields && typeof data.fields === 'object' && !Array.isArray(data.fields)
         ? (data.fields as Record<string, string>) : undefined;
       const fieldMsg = fields ? Object.values(fields).filter(Boolean).join(' ') : '';
@@ -73,6 +64,7 @@ export async function request<T>(path: string, opts: Options = {}): Promise<T> {
     return data as T;
   } catch (e) {
     if (e instanceof ApiError) throw e;
+    setOffline(true);
     throw new ApiError(0, '');
   } finally {
     clearTimeout(timer);
