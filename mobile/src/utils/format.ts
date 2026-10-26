@@ -24,3 +24,18 @@ export function levelOf(v: string | undefined | null): 'low' | 'medium' | 'high'
   const s = String(v ?? '').toLowerCase();
   return s === 'high' || s === 'low' ? s : 'medium';
 }
+
+export function daysUntil(iso?: string | null): number | null {
+  if (!iso) return null;
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return null;
+  const now = new Date();
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(0, Math.round((Date.UTC(y, m - 1, d) - today) / 86400000));
+}
+
+export function groupDigits(s: string): string {
+  const [i, d] = s.split('.');
+  const g = (i || '0').replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return d !== undefined ? `${g}.${d}` : g;
+}

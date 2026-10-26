@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Share, View } from 'react-native';
 import * as Speech from 'expo-speech';
 import AppText from './AppText';
 import Banner from './Banner';
@@ -91,6 +91,7 @@ export function AiResultView({ r }: { r: AiResult }) {
       <List title={t('redFlags')} items={r.red_flags} />
       <List title={t('whatToDo')} items={r.advice} />
       <Button variant="secondary" icon={speaking ? 'stop-circle-outline' : 'volume-high-outline'} title={speaking ? t('stopReading') : t('readAloud')} onPress={speak} />
+      <Button variant="secondary" icon="share-social-outline" title={t('shareFriend')} onPress={() => void Share.share({ message: t('shareText') })} />
       <AppText variant="small" color={colors.muted}>{t('aiLabel')}</AppText>
     </View>
   );

@@ -39,7 +39,7 @@ export default function LoanCostScreen() {
   };
 
   return (
-    <Screen>
+    <Screen back>
       <AppText variant="title">{t('loanTitle')}</AppText>
       <Field label={t('amountBorrowed')} value={principal} onChangeText={setPrincipal} keyboardType="decimal-pad" placeholder="1000" />
       <Field label={t('totalToRepay')} value={total} onChangeText={setTotal} keyboardType="decimal-pad" placeholder="1600" />

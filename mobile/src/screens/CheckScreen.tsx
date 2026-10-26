@@ -5,6 +5,7 @@ import AppText from '../components/AppText';
 import Banner from '../components/Banner';
 import Button from '../components/Button';
 import Field from '../components/Field';
+import FadeIn from '../components/FadeIn';
 import Screen from '../components/Screen';
 import { AiResultView, OfferResultView } from '../components/ResultViews';
 import { useSettings, useT } from '../context/SettingsContext';
@@ -77,8 +78,10 @@ export default function CheckScreen() {
         </>
       ) : (
         <View style={{ gap: 14 }}>
-          {ai ? <AiResultView r={ai} /> : null}
-          {rules ? <OfferResultView r={rules} /> : null}
+          <FadeIn>
+            {ai ? <AiResultView r={ai} /> : null}
+            {rules ? <OfferResultView r={rules} /> : null}
+          </FadeIn>
           <Button variant="secondary" title={t('checkAnother')} icon="refresh" onPress={reset} />
         </View>
       )}
