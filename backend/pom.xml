@@ -7,7 +7,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <!-- Initializr would offer the newest stable version. Any 3.5.x works with this code. -->
-        <version>3.5.6</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
 
